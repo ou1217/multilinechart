@@ -3,6 +3,10 @@ var margin = {top: 20, right: 200, bottom: 30,left: 50},
     height = $(".chart").height() - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%Y").parse;
+/*
+var maketip = function (d) {			               
+			   var tip = '<p>' + d.name + '</p>' + NumbType(d.value) + '</p> <p >'+  formatDate(d.date)+'</p>';
+      		   return tip;}*/ http://bl.ocks.org/Matthew-Weber/5645518
 
 var x = d3.time.scale()
     .range([0, width]);
@@ -30,12 +34,13 @@ var line = d3.svg.line()
     .defined(function(d) {
         return !isNaN(d.divorces)
     })
-    .interpolate("basis")
     .x(function(d) {
         return x(d.date);
     })
+
     .y(function(d) {
         return y(d.divorces);
+    
     });
 
 var svg = d3.select(".chart").append("svg")
@@ -67,8 +72,8 @@ d3.selection.prototype.moveToBack = function() {
 };
 
 
-
-d3.csv("js/divorce.csv", function(error, data) {
+/*call commmutemo*/
+d3.csv("js/commutemo.csv", function(error, data) {
     //Mapped our states to the theStates scale instead of the color scale.
     //color.domain(d3.keys(data[0]).filter(function(key) { return key !== "year"; }));
     theStates.domain(d3.keys(data[0]).filter(function(key) {
@@ -122,12 +127,12 @@ d3.csv("js/divorce.csv", function(error, data) {
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis)
-        // .append("text")
-        //   .attr("transform", "rotate(-90)")
-        //   .attr("y", 6)
-        //   .attr("dy", ".71em")
-        //   .style("text-anchor", "end")
-        //   .text("divorces");
+        .append("text")
+         .attr("transform", "rotate(-90)")
+       .attr("y", 6)
+     .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     .text("Mean Time to Work (min)");
 
     var state = svg.selectAll(".state")
         .data(states)
@@ -144,25 +149,48 @@ d3.csv("js/divorce.csv", function(error, data) {
         .style("stroke", function(d) {
             "#CCC"
         })
+    
 
-
+    state.selectAll("circle")
+		.data( function(d) {return(d.values);} )
+		.enter()
+		.append("circle")
+			.attr("class","tipcircle")
+			.attr("cx", function(d,i){return x(d.date)})
+			.attr("cy",function(d,i){return y(d.divorces)})
+			.attr("r",3)
+			.style('opacity', 1e-6)//1e-6
+            .style("fill", "#CCC");    
+		
+    
+    
+    
     //Added mouseover and mouseout to the lines
+   
+
+
     //Mouseover brings a line group to the front
     //And colors in black
     //Mouseout sends all of the line groups to the back
     //And colors all of the lines grey
     d3.selectAll(".line")
         .on("mouseover", function(d) {
+          
             d3.select(this)
                 .style("stroke", function(d) {
-                    return "#333";
+                    return "steelblue";
+                })
+            .style("stroke-width", function(d) {
+                    return "7px";
                 });
 
             d3.select("g.state." + d.nameStr)
                 .moveToFront();
 
             d3.select(".state-lbl." + d.nameStr)
+                
                 .attr("opacity", 1);
+            
 
         })
         .on("mouseout", function(d) {
@@ -170,12 +198,16 @@ d3.csv("js/divorce.csv", function(error, data) {
                 .style("stroke", function(d) {
                     return "#CCC";
                 })
+                .style("stroke-width", function(d) {
+                    return "2px";
+                })
+
 
             d3.select("g.state")
                 .moveToBack();
 
             d3.selectAll(".state-lbl")
-                .attr("opacity", 0);
+                .attr("opacity", .2);
 
         })
 
@@ -196,10 +228,157 @@ d3.csv("js/divorce.csv", function(error, data) {
             console.log(d);
             return "translate(" + width + "," + y(d.value.divorces) + ")";
         })
-        .attr("opacity", 0)
+        .attr("opacity", 0.2)
         .attr("x", 3)
         .attr("dy", ".35em")
         .text(function(d) {
             return d.name;
         });
-});
+}); 
+/*end of commutemo.csv*/
+
+function updateData() {
+
+/*call commmutestates*/
+d3.csv("js/commutestates.csv", function(error, data) {
+    
+    theStates.domain(d3.keys(data[0]).filter(function(key) {
+        return key !== "year";
+    }));
+
+    data.forEach(function(d) {
+        d.date = parseDate(d.year);
+    });
+
+    var states = theStates.domain().map(function(name) {
+        return {
+            name: name,
+            nameStr: name.replace(/ /g, ""),
+            values: data.map(function(d) {
+                return {
+                    date: d.date,
+                    divorces: +d[name]
+                };
+            })
+        };
+    });
+
+
+    x.domain(d3.extent(data, function(d) {
+        return d.date;
+    }));
+
+    y.domain([
+        d3.min(states, function(c) {
+            return d3.min(c.values, function(v) {
+                return v.divorces;
+            });
+        }),
+        d3.max(states, function(c) {
+            return d3.max(c.values, function(v) {
+                return v.divorces;
+            });
+        })
+    ]);
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+    /*delete the dubplicated text on y-axis
+        .append("text")
+         .attr("transform", "rotate(-90)")
+       .attr("y", 6)
+     .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     .text("Mean Time to Work (min)");
+*/
+    
+    var state = svg.selectAll(".state")
+        .data(states)
+        .enter().append("g")
+        .attr("class", function(d) {
+            return "state " + d.nameStr;
+        });
+
+    state.append("path")
+        .attr("class", "line")
+        .attr("d", function(d) {
+            return line(d.values);
+        })
+        .style("stroke", function(d) {
+            "#CCC"
+        })
+		
+       
+    d3.selectAll(".line")
+        .on("mouseover", function(d) {
+          
+            d3.select(this)
+                .style("stroke", function(d) {
+                    return "steelblue";
+                })
+            .style("stroke-width", function(d) {
+                    return "7px";
+                });
+
+            d3.select("g.state." + d.nameStr)
+                .moveToFront();
+
+            d3.select(".state-lbl." + d.nameStr)
+                
+                .attr("opacity", 1);
+            
+
+        })
+        .on("mouseout", function(d) {
+            d3.selectAll(".line")
+                .style("stroke", function(d) {
+                    return "#CCC";
+                })
+                .style("stroke-width", function(d) {
+                    return "2px";
+                })
+
+
+            d3.select("g.state")
+                .moveToBack();
+
+            d3.selectAll(".state-lbl")
+                .attr("opacity", .2);
+
+        })
+
+/*add name tags*/
+    state.append("text")
+        .datum(function(d) {
+            return {
+                name: d.name,
+                nameStr: d.name.replace(/ /g, ""),
+                value: d.values[d.values.length - 1]
+            };
+        })
+        .attr("class", function(d) {
+            console.log(d)
+            return "state-lbl " + d.nameStr;
+        })
+        .attr("transform", function(d) {
+            console.log(d);
+            return "translate(" + width + "," + y(d.value.divorces) + ")";
+        })
+        .attr("opacity", 0.2)
+        .attr("x", 3)
+        .attr("dy", ".35em")
+        .text(function(d) {
+            return d.name;
+        });
+}); 
+
+
+
+
+}

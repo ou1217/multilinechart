@@ -2,32 +2,51 @@
 
 
 .chart {
-  height: 650px;
+  height: 550px;
     width:1000px;
 }
 
 .axis path,
 .axis line {
   fill: none;
-  stroke: #000;
+  stroke: black;
   shape-rendering: crispEdges;
 }
 
-.x.axis path {
-  /*display: none;*/
-}
 
-.line {
+
+.line1 {
   fill: none;
   stroke: #CCC;
   stroke-width: 2px;
 }
 
+
+.line2 {
+  fill: none;
+  stroke: #CCC;
+  stroke-width: 2px;
+}
+p{
+font-family: Helvetica;
+font-size: 18px;
+}
+h1{
+font-family: Helvetica;
+font-style:thin;
+font-size:30px;
+}
 .state-lbl{
 shape-margin: 3px;
 font-family: Helvetica;
 font-style: bold;
-font-size: 15px;
+font-size: 20px;
+}
+.state-lbl2{
+shape-margin: 3px;
+font-family: Helvetica;
+font-style: bold;
+font-size: 20px;
 }
 
 .btn {
@@ -59,3 +78,6 @@ font-size: 15px;
   background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
   text-decoration: none;
 }
+
+#texttext{
+width:960px}

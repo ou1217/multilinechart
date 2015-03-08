@@ -1,12 +1,9 @@
 var margin = {top: 20, right: 200, bottom: 30,left: 50},
-    width = $(".chart").width() - margin.left - margin.right,
-    height = $(".chart").height() - margin.top - margin.bottom;
+    width = 1100 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%Y").parse;
-/*
-var maketip = function (d) {			               
-			   var tip = '<p>' + d.name + '</p>' + NumbType(d.value) + '</p> <p >'+  formatDate(d.date)+'</p>';
-      		   return tip;}*/ http://bl.ocks.org/Matthew-Weber/5645518
+
 
 var x = d3.time.scale()
     .range([0, width]);
@@ -34,6 +31,8 @@ var line = d3.svg.line()
     .defined(function(d) {
         return !isNaN(d.divorces)
     })
+   /* .interpolate("basis")*/
+
     .x(function(d) {
         return x(d.date);
     })
@@ -74,8 +73,6 @@ d3.selection.prototype.moveToBack = function() {
 
 /*call commmutemo*/
 d3.csv("js/commutemo.csv", function(error, data) {
-    //Mapped our states to the theStates scale instead of the color scale.
-    //color.domain(d3.keys(data[0]).filter(function(key) { return key !== "year"; }));
     theStates.domain(d3.keys(data[0]).filter(function(key) {
         return key !== "year";
     }));
@@ -142,7 +139,8 @@ d3.csv("js/commutemo.csv", function(error, data) {
         });
 
     state.append("path")
-        .attr("class", "line")
+        .attr("class", "line1")
+    
         .attr("d", function(d) {
             return line(d.values);
         })
@@ -150,7 +148,7 @@ d3.csv("js/commutemo.csv", function(error, data) {
             "#CCC"
         })
     
-
+/*
     state.selectAll("circle")
 		.data( function(d) {return(d.values);} )
 		.enter()
@@ -160,7 +158,7 @@ d3.csv("js/commutemo.csv", function(error, data) {
 			.attr("cy",function(d,i){return y(d.divorces)})
 			.attr("r",3)
 			.style('opacity', 1e-6)//1e-6
-            .style("fill", "#CCC");    
+            .style("fill", "#CCC");    */
 		
     
     
@@ -173,7 +171,7 @@ d3.csv("js/commutemo.csv", function(error, data) {
     //And colors in black
     //Mouseout sends all of the line groups to the back
     //And colors all of the lines grey
-    d3.selectAll(".line")
+    d3.selectAll(".line1")
         .on("mouseover", function(d) {
           
             d3.select(this)
@@ -194,7 +192,7 @@ d3.csv("js/commutemo.csv", function(error, data) {
 
         })
         .on("mouseout", function(d) {
-            d3.selectAll(".line")
+            d3.selectAll(".line1")
                 .style("stroke", function(d) {
                     return "#CCC";
                 })
@@ -207,7 +205,7 @@ d3.csv("js/commutemo.csv", function(error, data) {
                 .moveToBack();
 
             d3.selectAll(".state-lbl")
-                .attr("opacity", .2);
+                .attr("opacity", .1);
 
         })
 
@@ -228,7 +226,7 @@ d3.csv("js/commutemo.csv", function(error, data) {
             console.log(d);
             return "translate(" + width + "," + y(d.value.divorces) + ")";
         })
-        .attr("opacity", 0.2)
+        .attr("opacity", 0.1)
         .attr("x", 3)
         .attr("dy", ".35em")
         .text(function(d) {
@@ -238,9 +236,17 @@ d3.csv("js/commutemo.csv", function(error, data) {
 /*end of commutemo.csv*/
 
 function updateData() {
+d3.csv("js/commutestates.csv", function(error, data) {
+d3.selectAll(".line1").transition(500)
+    .attr("opacity","0")
+});
+d3.select("class","x axis")
+     .attr("dy", ".2em")
 
 /*call commmutestates*/
 d3.csv("js/commutestates.csv", function(error, data) {
+    d3.selectAll(".line2").transition(500)
+    .attr("opacity","1")
     
     theStates.domain(d3.keys(data[0]).filter(function(key) {
         return key !== "year";
@@ -284,11 +290,11 @@ d3.csv("js/commutestates.csv", function(error, data) {
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+   .call(xAxis);
 
     svg.append("g")
         .attr("class", "y axis")
-        .call(yAxis)
+   .call(yAxis) 
     /*delete the dubplicated text on y-axis
         .append("text")
          .attr("transform", "rotate(-90)")
@@ -306,7 +312,7 @@ d3.csv("js/commutestates.csv", function(error, data) {
         });
 
     state.append("path")
-        .attr("class", "line")
+        .attr("class", "line2")
         .attr("d", function(d) {
             return line(d.values);
         })
@@ -315,7 +321,7 @@ d3.csv("js/commutestates.csv", function(error, data) {
         })
 		
        
-    d3.selectAll(".line")
+    d3.selectAll(".line2")
         .on("mouseover", function(d) {
           
             d3.select(this)
@@ -336,7 +342,7 @@ d3.csv("js/commutestates.csv", function(error, data) {
 
         })
         .on("mouseout", function(d) {
-            d3.selectAll(".line")
+            d3.selectAll(".line2")
                 .style("stroke", function(d) {
                     return "#CCC";
                 })
@@ -349,7 +355,7 @@ d3.csv("js/commutestates.csv", function(error, data) {
                 .moveToBack();
 
             d3.selectAll(".state-lbl")
-                .attr("opacity", .2);
+                .attr("opacity", .1);
 
         })
 
@@ -370,7 +376,7 @@ d3.csv("js/commutestates.csv", function(error, data) {
             console.log(d);
             return "translate(" + width + "," + y(d.value.divorces) + ")";
         })
-        .attr("opacity", 0.2)
+        .attr("opacity", 0.1)
         .attr("x", 3)
         .attr("dy", ".35em")
         .text(function(d) {
@@ -382,3 +388,21 @@ d3.csv("js/commutestates.csv", function(error, data) {
 
 
 }
+
+function revertData() {d3.csv("js/commutestates.csv", function(error, data) {
+       d3.selectAll(".line2").transition(500)
+       .attr("opacity","0");});d3.csv("js/commutestates.csv", function(error, data) {
+       d3.selectAll(".line1").transition(500)
+       .attr("opacity","1");
+
+
+}
+                                     
+                                     
+                    )
+                              
+                              };
+
+   
+    
+
